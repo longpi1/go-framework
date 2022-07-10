@@ -1,7 +1,7 @@
 package gpnrpc
 
 import (
-	"encoding/json"
+	"encoding/gob"
 	"fmt"
 	"gpnrpc/type"
 
@@ -21,7 +21,7 @@ type Option struct {
 
 var DefaultOption = &Option{
 	MagicNumber: MagicNumber,
-	CodecType:   _type.JsonType,
+	CodecType:   _type.GobType,
 }
 
 // RPC Server.
@@ -39,7 +39,7 @@ var DefaultServer = NewServer()
 func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 	defer func() { _ = conn.Close() }()
 	var opt Option
-	if err := json.NewDecoder(conn).Decode(&opt); err != nil {
+	if err := gob.NewDecoder(conn).Decode(&opt); err != nil {
 		log.Println("rpc server: options error: ", err)
 		return
 	}
@@ -59,7 +59,7 @@ func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 var invalidRequest = struct{}{}
 
 func (server *Server) serveCodec(cc _type.Codec) {
-	sending := new(sync.Mutex)
+	mylock := new(sync.Mutex)
 	wg := new(sync.WaitGroup)
 	for {
 		req, err := server.readRequest(cc)
@@ -68,11 +68,11 @@ func (server *Server) serveCodec(cc _type.Codec) {
 				break
 			}
 			req.h.Error = err.Error()
-			server.sendResponse(cc, req.h, invalidRequest, sending)
+			server.sendResponse(cc, req.h, invalidRequest, mylock)
 			continue
 		}
 		wg.Add(1)
-		go server.handleRequest(cc, req, sending, wg)
+		go server.handleRequest(cc, req, mylock, wg)
 	}
 	wg.Wait()
 	_ = cc.Close()
@@ -108,22 +108,22 @@ func (server *Server) readRequest(cc _type.Codec) (*request, error) {
 	return req, nil
 }
 
-func (server *Server) sendResponse(cc _type.Codec, h *_type.Header, body interface{}, sending *sync.Mutex) {
-	sending.Lock()
-	defer sending.Unlock()
+func (server *Server)  sendResponse(cc _type.Codec, h *_type.Header, body interface{}, myLock *sync.Mutex) {
+	myLock.Lock()
+	defer myLock.Unlock()
 	if err := cc.Write(h, body); err != nil {
 		log.Println("rpc server: write response error:", err)
 	}
 }
 
-func (server *Server) handleRequest(cc _type.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup) {
+func (server *Server) handleRequest(cc _type.Codec, req *request, mylock *sync.Mutex, wg *sync.WaitGroup) {
 	defer wg.Done()
 	log.Println(req.h, req.argv.Elem())
-	req.replyv = reflect.ValueOf(fmt.Sprintf("geerpc resp %d", req.h.Seq))
-	server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
+	req.replyv = reflect.ValueOf(fmt.Sprintf("gpnrpc resp %d", req.h.Seq))
+	server.sendResponse(cc, req.h, req.replyv.Interface(), mylock)
 }
 
-func (server *Server) Accept(lis net.Listener) {
+func (server *Server) accept(lis net.Listener) {
 	for {
 		conn, err := lis.Accept()
 		if err != nil {
@@ -134,4 +134,4 @@ func (server *Server) Accept(lis net.Listener) {
 	}
 }
 
-func Accept(lis net.Listener) { DefaultServer.Accept(lis) }
+func Accept(lis net.Listener) { DefaultServer.accept(lis) }

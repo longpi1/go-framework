@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"encoding/gob"
 	"fmt"
 	codec "gpnrpc"
 	"gpnrpc/type"
@@ -28,14 +28,14 @@ func main() {
 	conn, _ := net.Dial("tcp", <-addr)
 	defer func() { _ = conn.Close() }()
 	time.Sleep(time.Second)
-	_ = json.NewEncoder(conn).Encode(codec.DefaultOption)
+	_ = gob.NewEncoder(conn).Encode(codec.DefaultOption)
 	cc := _type.NewGobCodec(conn)
 	for i := 0; i < 5; i++ {
 		h := &_type.Header{
 			ServiceMethod: "test",
 			Seq:           uint64(i),
 		}
-		_ = cc.Write(h, fmt.Sprintf("geerpc req %d", h.Seq))
+		_ = cc.Write(h, fmt.Sprintf("gpn req %d", h.Seq))
 		_ = cc.ReadHeader(h)
 		var reply string
 		_ = cc.ReadBody(&reply)
