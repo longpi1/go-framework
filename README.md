@@ -11,3 +11,5 @@ go-rpc: 通过go实现简易的RPC框架；
 go-orm: 通过go实现简易的ORM框架；
 
 go-net: 通过go实现简易的网络编程；
+
+go-test: 个人的go基础知识练习；
