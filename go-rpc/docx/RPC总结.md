@@ -12,6 +12,18 @@
 
 ![img](https://static001.geekbang.org/resource/image/ac/fa/acf53138659f4982bbef02acdd30f1fa.jpg?wh=3846*1377)
 
+## RPC架构
+
+![img](https://static001.geekbang.org/resource/image/30/fb/30f52b433aa5f103114a8420c6f829fb.jpg?wh=2951*2181)
+
+​                                                                                                                      **核心功能体系** 
+
+![img](https://static001.geekbang.org/resource/image/a3/a6/a3688580dccd3053fac8c0178cef4ba6.jpg?wh=3084*2183)
+
+​                                                                                                                  **插件化体系架构** 
+
+**插件化体系**整个架构就变成了一个微内核架构，我们将每个功能点抽象成一个接口，将这个接口作为插件的契约，然后把这个功能的接口与功能的实现分离并提供接口的默认实现。这样的架构相比之前的架构，有很多优势。首先它的可扩展性很好，实现了开闭原则，用户可以非常方便地通过插件扩展实现自己的功能，而且不需要修改核心功能的本身；其次就是保持了核心包的精简，依赖外部包少，这样可以有效减少开发人员引入 RPC 导致的包版本冲突问题。
+
 ## RPC应用场景
 
 ![img](https://static001.geekbang.org/resource/image/50/be/506e902e06e91663334672c29bfbc2be.jpg?wh=3205*1778)
@@ -102,3 +114,26 @@ Protobuf 是 Google 公司内部的混合语言数据标准，是一种轻便、
 
 
 
+## RPC主要实现功能
+
+### 服务发现
+
+
+
+### 健康检测
+
+
+
+### 路由策略
+
+
+
+### 负载均衡
+
+
+
+### 异常重试与熔断限流
+
+
+
+### 开启与关闭
