@@ -175,9 +175,9 @@ ZooKeeper 的一大特点就是强一致性，ZooKeeper 集群的每个节点的
 **Script Check、HTTP Check、TCP Check、TTL Check等**
 
 #### consul做法
-**curl http://localhost:8500/v1/health/state/critical ？**
+**TTL/TCP?**
 
-#### etcd做法？
+#### etcd做法
 
 **基于lease租约机制，对注册的服务设置key TTL，定时保持服务的心跳以达到监控健康状态的效果。**
 

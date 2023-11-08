@@ -1,4 +1,4 @@
-# go-framework（TODO）
+# go-example（TODO）
 
 ## 目录结构：
 
@@ -13,5 +13,3 @@ go-orm: 通过go实现简易的ORM框架；
 go-net: 通过go实现简易的网络编程；
 
 go-test: 个人的go基础知识练习；
-
-go-plugin: 插件式开发；
